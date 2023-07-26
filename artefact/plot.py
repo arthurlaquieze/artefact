@@ -82,8 +82,7 @@ def plot_trajs(t, sector, proj=Lambert93()):
 
     #  -- dealing with colours --
     color_cycle = cycle(
-        ["#377eb8", "#ff7f00", "#4daf4a", "#f781bf"]
-        + ["#a65628", "#984ea3", "#999999", "#e41a1c", "#dede00"]
+        ["#377eb8", "#ff7f00", "#4daf4a", "#f781bf"] + ["#a65628", "#984ea3", "#999999", "#e41a1c", "#dede00"]
     )
 
     colors = list(islice(color_cycle, n_clusters_))
@@ -103,12 +102,13 @@ def plot_trajs(t, sector, proj=Lambert93()):
 
     with plt.style.context("traffic"):
         fig, ax = plt.subplots(
-            nb_lines, nb_cols, subplot_kw=dict(projection=proj), figsize=(15, 25),
+            nb_lines,
+            nb_cols,
+            subplot_kw=dict(projection=proj),
+            figsize=(15, 25),
         )
 
-        for cluster, ax_ in tqdm(
-            zip(range(t.data.cluster.min(), n_clusters_), ax_iter(ax))
-        ):
+        for cluster, ax_ in tqdm(zip(range(t.data.cluster.min(), n_clusters_), ax_iter(ax))):
             ax_.add_feature(countries())
             ax_.add_feature(rivers())
 
@@ -127,17 +127,19 @@ def plot_trajs(t, sector, proj=Lambert93()):
 
 
 def clusters_plot2d(
-    sector, t, nb_samples, projection, scaler=None, plot_trajs=False, plot_clust=None,
+    sector,
+    t,
+    nb_samples,
+    projection,
+    scaler=None,
+    plot_trajs=False,
+    plot_clust=None,
 ):
     with plt.style.context("traffic"):
         fig, ax = plt.subplots(subplot_kw=dict(projection=projection))
         ax.add_feature(countries())
         ax.add_feature(rivers())
-        ax.set_extent(
-            tuple(
-                x - 0.5 + (0 if i % 2 == 0 else 1) for i, x in enumerate(sector.extent)
-            )
-        )
+        ax.set_extent(tuple(x - 0.5 + (0 if i % 2 == 0 else 1) for i, x in enumerate(sector.extent)))
         sector.plot(ax, lw=5)
         clust_ids = sorted(t.data.cluster.unique())
         if plot_clust is None:
@@ -167,9 +169,7 @@ def clusters_plot2d(
                             alpha=0.5,
                         )
             if cid != -1:
-                cent = tc.centroid(
-                    nb_samples, projection=projection, transformer=scaler
-                ).data
+                cent = tc.centroid(nb_samples, projection=projection, transformer=scaler).data
                 lat = list(cent["latitude"])
                 lon = list(cent["longitude"])
                 ax.plot(lon, lat, color=C[cid], transform=PlateCarree(), lw=5)
@@ -248,10 +248,7 @@ def clusters_plot3d(
         if plot_clust is None:
             plot_clust = clust_ids
 
-        L = [
-            sum([l == cid for l in t.data["cluster"]]) / len(t.data["cluster"])
-            for cid in clust_ids
-        ]
+        L = [sum([l == cid for l in t.data["cluster"]]) / len(t.data["cluster"]) for cid in clust_ids]
 
         for cid in plot_clust:
             tc = t.query(f"cluster=={cid}")
@@ -274,9 +271,7 @@ def clusters_plot3d(
             else:
                 lw = 7
             if cid != -1 and L[cid] >= 0.01:
-                cent = tc.centroid(
-                    nb_samples, projection=projection, transformer=scaler
-                ).data
+                cent = tc.centroid(nb_samples, projection=projection, transformer=scaler).data
                 lon = list(cent["longitude"])
                 lat = list(cent["latitude"])
                 alt = list(cent["altitude"])
@@ -308,16 +303,12 @@ def clusters_plot3d(
                 ax.view_init(20 + 5 * np.sin(i / 20), -60)
                 return []
 
-            return animation.FuncAnimation(
-                fig, animate, frames=90, interval=200, blit=True
-            )
+            return animation.FuncAnimation(fig, animate, frames=90, interval=200, blit=True)
         else:
             plt.show()
 
 
-def plot_latent_and_trajs(
-    t, lat, savefig, plot_clusters=False, airport="LSZH", runway=None
-):
+def plot_latent_and_trajs(t, lat, savefig, plot_clusters=False, airport="LSZH", runway=None):
     if runway is not None:
         subset = t.query(f"runway == '{runway}' and initial_flow != 'N/A'")
     else:
@@ -326,7 +317,11 @@ def plot_latent_and_trajs(
     df = pd.DataFrame.from_records(
         [
             {"flight_id": id_, "x": x, "y": y}
-            for (id_, x, y) in zip(list(f.flight_id for f in t), lat[:, 0], lat[:, 1],)
+            for (id_, x, y) in zip(
+                list(f.flight_id for f in t),
+                lat[:, 0],
+                lat[:, 1],
+            )
         ]
     )
     cols = ["flight_id", "simple", "initial_flow"]
@@ -338,7 +333,7 @@ def plot_latent_and_trajs(
         text_style = dict(
             verticalalignment="top",
             horizontalalignment="right",
-            fontname="Ubuntu",
+            # fontname="Ubuntu",
             fontsize=18,
             bbox=dict(facecolor="white", alpha=0.6, boxstyle="round"),
         )
@@ -359,13 +354,9 @@ def plot_latent_and_trajs(
         ax = fig.add_subplot(121)
         m = fig.add_subplot(122, projection=EuroPP())
 
-        m.add_feature(
-            countries(
-                edgecolor="white", facecolor="#d9dadb", alpha=1, linewidth=2, zorder=-2
-            )
-        )
-        m.outline_patch.set_visible(False)
-        m.background_patch.set_visible(False)
+        m.add_feature(countries(edgecolor="white", facecolor="#d9dadb", alpha=1, linewidth=2, zorder=-2))
+        # m.outline_patch.set_visible(False)
+        # m.background_patch.set_visible(False)
 
         airports[airport].point.plot(
             m,
@@ -384,9 +375,7 @@ def plot_latent_and_trajs(
         for (flow, d), color in zip(stasts.groupby(gb), colors):
             d.plot.scatter(x="x", y="y", ax=ax, color=color, label=flow, alpha=0.4)
 
-            subset.query(f'{gb} == "{flow}"')[:50].plot(
-                m, color=color, linewidth=1.5, alpha=0.5
-            )
+            subset.query(f'{gb} == "{flow}"')[:50].plot(m, color=color, linewidth=1.5, alpha=0.5)
 
         ax.legend(prop=dict(family="Ubuntu", size=18))
         ax.grid(linestyle="solid", alpha=0.5, zorder=-2)
@@ -426,9 +415,7 @@ def dur_dist_plot(dur_dist, to_json_for_lab=None):
     alt.data_transformers.enable("json")
     return (
         alt.Chart(dur_dist)
-        .transform_density(
-            "duration", as_=["duration", "density"], extent=[0, 70], groupby=["cluster"]
-        )
+        .transform_density("duration", as_=["duration", "density"], extent=[0, 70], groupby=["cluster"])
         .mark_area(orient="horizontal")
         .encode(
             y="duration:Q",
@@ -443,7 +430,9 @@ def dur_dist_plot(dur_dist, to_json_for_lab=None):
             column=alt.Column(
                 "cluster:N",
                 header=alt.Header(
-                    titleOrient="bottom", labelOrient="bottom", labelPadding=0,
+                    titleOrient="bottom",
+                    labelOrient="bottom",
+                    labelPadding=0,
                 ),
             ),
         )
@@ -467,7 +456,7 @@ def plot_latent_and_trajs_outliers(
     outliers = outliers.query("initial_flow != 'N/A'")
     if outliers is None:
         return
-    
+
     if runway is not None:
         subset = t.query(f"runway == '{runway}' and initial_flow != 'N/A'")
     else:
@@ -475,7 +464,11 @@ def plot_latent_and_trajs_outliers(
     df = pd.DataFrame.from_records(
         [
             {"flight_id": id_, "x": x, "y": y}
-            for (id_, x, y) in zip(list(f.flight_id for f in t), lat[:, 0], lat[:, 1],)
+            for (id_, x, y) in zip(
+                list(f.flight_id for f in t),
+                lat[:, 0],
+                lat[:, 1],
+            )
         ]
     )
     top_outliers = (
@@ -515,11 +508,7 @@ def plot_latent_and_trajs_outliers(
         fig = plt.figure(figsize=(30, 15))
         ax = fig.add_subplot(121)
         m = fig.add_subplot(122, projection=EuroPP())
-        m.add_feature(
-            countries(
-                edgecolor="white", facecolor="#d9dadb", alpha=1, linewidth=2, zorder=-2
-            )
-        )
+        m.add_feature(countries(edgecolor="white", facecolor="#d9dadb", alpha=1, linewidth=2, zorder=-2))
         m.outline_patch.set_visible(False)
         m.background_patch.set_visible(False)
 
@@ -533,15 +522,20 @@ def plot_latent_and_trajs_outliers(
         )
 
         subset.plot.scatter(
-            x="x", y="y", ax=ax, color="#aaaaaa", alpha=0.4,
+            x="x",
+            y="y",
+            ax=ax,
+            color="#aaaaaa",
+            alpha=0.4,
         )
         for (flow, d), color in zip(subset_o.groupby("cluster"), colors):
-            d.plot.scatter(
-                x="x", y="y", ax=ax, color=color, label=flow, alpha=0.4, s=100
-            )
+            d.plot.scatter(x="x", y="y", ax=ax, color=color, label=flow, alpha=0.4, s=100)
             for f in Traffic(d):
                 f.plot(
-                    m, linewidth=3, label=f"{f.callsign}, {f.stop:%b %d}", color=color,
+                    m,
+                    linewidth=3,
+                    label=f"{f.callsign}, {f.stop:%b %d}",
+                    color=color,
                 )
                 if plot_callsigns:
                     point = subset_o.query(f'flight_id == "{f.flight_id}"').iloc[0]

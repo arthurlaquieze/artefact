@@ -20,9 +20,8 @@ def delta_max(x, y, *args):
 
 def _joint_probabilities(distances, desired_perplexity, verbose=0):
     distances = distances.astype(np.float32, copy=True)
-    conditional_P = _binary_search_perplexity(
-        distances, None, desired_perplexity, verbose
-    )
+    # conditional_P = _binary_search_perplexity(distances, None, desired_perplexity, verbose)
+    conditional_P = _binary_search_perplexity(distances, desired_perplexity, verbose)
     P = conditional_P + conditional_P.T
     sum_P = np.maximum(np.sum(P), MACHINE_EPSILON_NP)
     P = np.maximum(squareform(P) / sum_P, MACHINE_EPSILON_NP)
@@ -61,7 +60,6 @@ def train(
     lr=1e-3,
     weight_decay=1e-5,
 ):
-
     model.to(device)
     model.train()
     with torch.enable_grad():
@@ -83,9 +81,7 @@ def train(
             v = batch[0].to(device)
 
             if lambda_kl > 0:
-                P = torch.as_tensor(
-                    make_P(batch[0], metric=distance_trajectory), device=device
-                )
+                P = torch.as_tensor(make_P(batch[0], metric=distance_trajectory), device=device)
 
             for iteration in tqdm(range(nb_iterations), leave=False):
                 lat, output = model(v)

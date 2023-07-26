@@ -1,3 +1,13 @@
+# macos garbage
+.DS_Store
+
+# data
+data/
+figs/
+models/
+models_tsne/
+test/
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]

@@ -1,0 +1,6 @@
+conda create -n artefact-pt python=3.11
+conda activate artefact-pt
+
+conda install pytorch::pytorch torchvision torchaudio -c pytorch
+
+conda install matplotlib scipy hdbscan scikit-learn numpy pandas[fss,gcp,parquet,performance] jupyter seaborn traffic

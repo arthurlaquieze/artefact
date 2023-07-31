@@ -1,0 +1,14 @@
+name: artefact
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - python>=3.11
+  - traffic=2.8.1
+  - pytorch::pytorch
+  - pytorch::torchvision
+  - pytorch::torchaudio
+  - pyarrow
+  - pip
+  - pip:
+      - "poetry>=1.5.1"

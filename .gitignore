@@ -4,6 +4,9 @@
 # mlflow
 mlruns/
 
+# wandb
+wandb/
+
 # data
 data/
 figs/

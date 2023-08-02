@@ -11,6 +11,9 @@ dependencies:
   - pytorch::torchvision
   - pytorch::torchaudio
   - pyarrow
+  # - google-cloud-storage
+  - wandb
+  - plotly
   - pip
   - pip:
       - "poetry>=1.5.1"

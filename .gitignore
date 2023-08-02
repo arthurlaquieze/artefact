@@ -1,6 +1,9 @@
 # macos garbage
 .DS_Store
 
+# mlflow
+mlruns/
+
 # data
 data/
 figs/

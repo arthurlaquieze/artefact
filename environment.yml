@@ -5,6 +5,8 @@ channels:
 dependencies:
   - python>=3.11
   - traffic=2.8.1
+  - mlflow
+  - tqdm
   - pytorch::pytorch
   - pytorch::torchvision
   - pytorch::torchaudio

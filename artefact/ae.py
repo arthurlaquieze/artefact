@@ -3,31 +3,36 @@ import numpy as np
 from torch import nn, optim
 
 
-def build_net(dims,reluout=True):
+def build_net(dims, reluout=True, dropout: float | None = None):
     ret = []
     n = len(dims[:-1])
-    for i,(n1, n2) in enumerate(zip(dims[:-1], dims[1:])):
+    for i, (n1, n2) in enumerate(zip(dims[:-1], dims[1:])):
         ret.append(nn.Linear(n1, n2))
-        if i<n-1 or reluout:
+        if dropout:
+            ret.append(nn.Dropout(dropout))
+        if i < n - 1 or reluout:
             ret.append(nn.ReLU())
     return ret
 
 
-def build_encoder(dims,reluout=True):
-    return build_net(dims,reluout)
+def build_encoder(dims, reluout=True, dropout: float | None = None):
+    return build_net(dims, reluout, dropout)
 
 
-def build_decoder(dims):
-    return build_net(dims)[:-1] + [nn.Sigmoid()]
+def build_decoder(dims, dropout: float | None = None):
+    # return build_net(dims, dropout=dropout)[:-1] + [nn.Sigmoid()]
+    return build_net(dims, dropout=dropout)[:-1] + [nn.Tanh()]
 
 
 class Autoencoder(nn.Module):
-    def __init__(self, layers,reluout=True):
+    def __init__(self, layers, reluout=True, dropout: float | None = None):
         """Build a new encoder using the architecture specified with
-    [arch_encoder] and [arch_decoder].
+        [arch_encoder] and [arch_decoder].
         """
 
         super().__init__()
+        if dropout:
+            print("using dropout!")
         if layers[0] != layers[-1]:
             arch_encoder = layers
             arch_decoder = tuple(reversed(layers))
@@ -36,19 +41,15 @@ class Autoencoder(nn.Module):
             arch_encoder = layers[: i + 1]
             arch_decoder = layers[i:]
 
-        self.encoder = nn.Sequential(*build_encoder(arch_encoder,reluout))
+        self.encoder = nn.Sequential(*build_encoder(arch_encoder, reluout, dropout))
 
-        arch_decoder = (
-            list(reversed(arch_encoder))
-            if arch_decoder is None
-            else arch_decoder
-        )
-        decode = build_decoder(arch_decoder)
+        arch_decoder = list(reversed(arch_encoder)) if arch_decoder is None else arch_decoder
+        decode = build_decoder(arch_decoder, dropout)
         if not reluout:
-            decode = [nn.ReLU()]+decode
+            decode = [nn.ReLU()] + decode
         self.decoder = nn.Sequential(*decode)
-        print("encoder",self.encoder)
-        print("decoder",self.decoder)
+        print("encoder", self.encoder)
+        print("decoder", self.decoder)
 
     def forward(self, x, **kwargs):
         lat = self.encoder(x)

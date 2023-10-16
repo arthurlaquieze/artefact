@@ -387,19 +387,23 @@ def plot_latent_and_trajs(t, lat, savefig, plot_clusters=False, airport="LSZH", 
         fig.savefig(savefig)
 
 
-def plot_loss(loss, re_loss=None, kl_loss=None, savefig=None):
+def plot_loss(loss, re_loss=None, kl_loss=None, savefig=None, epoch_loss=None):
     plt.figure(1)
-    plt.subplot(131)
+    plt.subplot(141)
     plt.plot(loss)
     plt.title("loss_evolution")
     if re_loss is not None:
-        plt.subplot(132)
+        plt.subplot(142)
         plt.plot(re_loss)
         plt.title("re_evolution")
     if kl_loss is not None:
-        plt.subplot(133)
+        plt.subplot(143)
         plt.plot(kl_loss)
         plt.title("kl_evolution")
+    if epoch_loss is not None:
+        plt.subplot(144)
+        plt.plot(epoch_loss)
+        plt.title("epoch_loss")
     if savefig is not None:
         plt.savefig(savefig)
 

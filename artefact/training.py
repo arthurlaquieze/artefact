@@ -59,6 +59,7 @@ def train(
     distance_trajectory="euclidean",
     lr=1e-3,
     weight_decay=1e-5,
+    epochs=1,
 ):
     model.to(device)
     model.train()
@@ -81,7 +82,7 @@ def train(
             v = batch[0].to(device)
 
             if lambda_kl > 0:
-                P = torch.as_tensor(make_P(batch[0], metric=distance_trajectory), device=device)
+                P = torch.as_tensor(make_P(batch[0], metric=distance_trajectory), device=device, dtype=torch.float32)
 
             for iteration in tqdm(range(nb_iterations), leave=False):
                 lat, output = model(v)
